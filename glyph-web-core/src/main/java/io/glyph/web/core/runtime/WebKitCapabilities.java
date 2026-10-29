@@ -8,7 +8,7 @@ import java.util.Set;
  * enable (e.g. hardware-accelerated compositing vs. software fallback).
  *
  * @param webkitLibraryPath   absolute path of the loaded shared library
- * @param apiFamily           resolved SONAME family, e.g. {@code "webkit2gtk-4.1"}
+ * @param apiFamily           resolved SONAME family, e.g. {@code "webkitgtk-6.0"}
  * @param gtkMajor            major GTK version in use (2, 3 or 4)
  * @param capabilities        feature flags; see {@link Feature}
  */
