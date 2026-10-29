@@ -1,0 +1,7 @@
+io/glyph/nativeapi/package-info.class
+io/glyph/nativeapi/webkit/NativeWebKit.class
+io/glyph/nativeapi/webkit/GtkWindowPointer.class
+io/glyph/nativeapi/webkit/WebKitWebViewPointer.class
+io/glyph/nativeapi/webkit/WebKitGTKPointer.class
+io/glyph/nativeapi/webkit/WebKitSettingsPointer.class
+io/glyph/nativeapi/webkit/package-info.class

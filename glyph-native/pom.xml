@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.glyph</groupId>
+    <artifactId>glyph-web</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>glyph-native</artifactId>
+  <name>GlyphWeb :: Native Bindings</name>
+  <description>
+    JavaCPP mapping layer for WebKitGTK (webkit2gtk-4.1). This module contains
+    only low-level pointer types and native function declarations; it must never
+    be used directly by application code. All consumers go through glyph-web-core.
+  </description>
+
+  <dependencies>
+    <!--
+      JavaCPP does the heavy lifting at BUILD time (annotation processor generates
+      the JNI/C++ stubs); at RUNTIME we ship a single small jar with no natives.
+      Platform-specific natives are resolved from the local system libraries
+      (libwebkit2gtk) or, in future releases, from org.bytedeco preset artifacts.
+    -->
+    <dependency>
+      <groupId>org.bytedeco</groupId>
+      <artifactId>javacpp</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <!--
+            The JavaCPP annotation processor runs during compilation of this
+            module to generate native stubs. It is disabled in CI environments
+            without a C toolchain via -Djavacpp.skip=true.
+          -->
+          <proc>full</proc>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

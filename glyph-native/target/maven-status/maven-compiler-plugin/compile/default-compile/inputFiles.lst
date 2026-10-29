@@ -1,0 +1,7 @@
+/workspace/glyph-native/src/main/java/io/glyph/nativeapi/package-info.java
+/workspace/glyph-native/src/main/java/io/glyph/nativeapi/webkit/GtkWindowPointer.java
+/workspace/glyph-native/src/main/java/io/glyph/nativeapi/webkit/NativeWebKit.java
+/workspace/glyph-native/src/main/java/io/glyph/nativeapi/webkit/WebKitGTKPointer.java
+/workspace/glyph-native/src/main/java/io/glyph/nativeapi/webkit/WebKitSettingsPointer.java
+/workspace/glyph-native/src/main/java/io/glyph/nativeapi/webkit/WebKitWebViewPointer.java
+/workspace/glyph-native/src/main/java/io/glyph/nativeapi/webkit/package-info.java
