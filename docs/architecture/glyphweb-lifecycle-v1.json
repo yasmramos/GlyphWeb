@@ -1,0 +1,40 @@
+{
+  "project": "GlyphWeb",
+  "module": "glyph-web-core",
+  "milestone": "M1 - WebKit instance lifecycle on Java 17 via JavaCPP",
+  "javaVersion": "17",
+  "threadingModel": {
+    "type": "single-writer",
+    "owner": "WebKitDispatcher (daemon thread 'glyph-webkit-ui')",
+    "rationale": "GTK core is not thread-safe; all native calls are marshalled via invokeAndWait, giving deterministic ordering for declarative reconciliation.",
+    "escapeHatch": "attachToExternalLoop(g_idle_add) planned for apps that already own the GTK main loop"
+  },
+  "classes": [
+    {"name": "io.glyph.web.core.lifecycle.GlyphWebView", "role": "public facade; implements NativeHandle + AutoCloseable", "states": ["NEW","CREATED","ATTACHED","VISIBLE","DESTROYING","DESTROYED"]},
+    {"name": "io.glyph.web.core.lifecycle.WebViewState", "role": "explicit state machine with ordinal-guarded transitions"},
+    {"name": "io.glyph.web.core.lifecycle.NativeHandle", "role": "contract: nativeId(), nativeAddress(), acceptsReclamation(), close() idempotent"},
+    {"name": "io.glyph.web.core.lifecycle.NativeId", "role": "AtomicLong monotonic ids; prevents address-reuse TOCTOU (fail loud vs use-after-free)"},
+    {"name": "io.glyph.web.core.lifecycle.WebKitLifecycleManager", "role": "ConcurrentHashMap<Long,Entry> registry; liveCount() leak tripwire; reverse-order shutdownAll()"},
+    {"name": "io.glyph.web.core.lifecycle.WebKitDispatcher", "role": "invokeAndWait/post; re-entrant inline execution on UI thread"},
+    {"name": "io.glyph.web.core.lifecycle.GUI", "role": "@GUI marker documenting UI-thread-only methods (zero runtime cost)"},
+    {"name": "io.glyph.web.core.runtime.WebKitRuntime", "role": "process singleton: probe -> bind -> gtk_init_check on dispatcher -> shutdown hook"},
+    {"name": "io.glyph.web.core.runtime.WebKitCapabilities", "role": "record: apiFamily, gtkMajor, EnumSet<Feature>"},
+    {"name": "io.glyph.nativeapi.webkit.NativeWebKit", "role": "INTERNAL thin static bindings (gw_* JNI bridge symbols)"},
+    {"name": "io.glyph.nativeapi.webkit.WebKitGTKPointer", "role": "abstract Pointer subclass hierarchy mirroring GObject inheritance"}
+  ],
+  "memoryPolicy": {
+    "primaryRelease": "explicit close() (try-with-resources), never finalizers",
+    "safetyNet": "Runtime shutdown hook drains WebKitLifecycleManager in reverse creation order",
+    "borrowedHandles": "acceptsReclamation()==false blocks GC-side free (e.g. WebKitSettings*)"
+  },
+  "performanceBudget": {
+    "jniBoundaryCall_ns": "20-60",
+    "nativeIdAllocation": "1 CAS (~5ns)",
+    "isAliveProbe": "lock-free CHM get",
+    "hotPathReflection": "none"
+  },
+  "verification": {
+    "build": "mvn -B test => BUILD SUCCESS",
+    "tests": {"run": 11, "failures": 0, "errors": 0}
+  }
+}
