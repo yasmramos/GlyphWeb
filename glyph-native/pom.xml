@@ -13,7 +13,9 @@
   <artifactId>glyph-native</artifactId>
   <name>GlyphWeb :: Native Bindings</name>
   <description>
-    JavaCPP mapping layer for WebKitGTK (webkit2gtk-4.1). This module contains
+    JavaCPP mapping layer for WebKitGTK. Primary target is the latest stable
+    line (2.50.x, webkitgtk-6.0 / GTK 4); webkit2gtk-4.1 (GTK 3) is kept as a
+    legacy fallback. This module contains
     only low-level pointer types and native function declarations; it must never
     be used directly by application code. All consumers go through glyph-web-core.
   </description>

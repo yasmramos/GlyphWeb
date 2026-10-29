@@ -53,8 +53,10 @@ public final class WebKitRuntime {
         File library = NativeLibraryProbe.findWebKitLibrary();
         if (library == null) {
             throw new GlyphWebException(
-                    "libwebkit2gtk (4.1/4.0/3.0) not found in standard paths. "
-                            + "Install the package 'libwebkit2gtk-4.1-dev' (Debian/Ubuntu) "
+                    "No WebKitGTK runtime found (searched webkitgtk-6.0, then legacy "
+                            + "webkit2gtk 4.1/4.0/3.0). Install the latest package "
+                            + "'libwebkitgtk-6.0-dev' (Debian/Ubuntu, WebKitGTK >= 2.50, "
+                            + "GTK 4 based) or its 'libwebkit2gtk-4.1-dev' predecessor, "
                             + "or set -Dglyph.webkit.library.path=/absolute/path/to/lib.");
         }
         if (!NativeLibraryProbe.hasDisplay()) {
@@ -92,11 +94,14 @@ public final class WebKitRuntime {
                 WebKitCapabilities.Feature.MULTIPROCESS,
                 WebKitCapabilities.Feature.WEB_EXTENSIONS,
                 WebKitCapabilities.Feature.IME);
-        if (family.endsWith("4.1") || family.endsWith("4.0")) {
+        // Sandbox (bubblewrap) and DMA-BUF acceleration are available on every
+        // modern family: the GTK4 webkitgtk-6.0 ABI and the libsoup3 4.1 ABI.
+        if (family.startsWith("webkitgtk-6.0") || family.endsWith("4.1") || family.endsWith("4.0")) {
             features.add(WebKitCapabilities.Feature.SANDBOX);
             features.add(WebKitCapabilities.Feature.HARDWARE_ACCELERATION);
         }
-        return new WebKitCapabilities(library.getAbsolutePath(), family, 3, features);
+        int gtkMajor = NativeLibraryProbe.gtkMajorForFamily(family);
+        return new WebKitCapabilities(library.getAbsolutePath(), family, gtkMajor, features);
     }
 
     /** Dispatcher used by every component; throws if the runtime is not up yet. */

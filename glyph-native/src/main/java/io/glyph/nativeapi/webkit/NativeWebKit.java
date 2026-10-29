@@ -3,18 +3,32 @@ package io.glyph.nativeapi.webkit;
 import org.bytedeco.javacpp.annotation.Name;
 
 /**
- * Static view over the WebKitGTK C API (webkit2gtk-4.1). Every method here is
- * a direct, thin binding — no allocation, no marshalling beyond what JavaCPP
- * generates. This class is INTERNAL; glyph-web-core wraps it with state checks.
+ * Static view over the WebKitGTK C API. GlyphWeb targets the LATEST stable
+ * WebKitGTK release line (2.50.x, Debian package {@code libwebkitgtk-6.0-dev})
+ * whose modern SONAME is {@code libwebkitgtk-6.0.so} (GTK 4 / libsoup 3).
+ * The legacy GTK3 ABI ({@code webkit2gtk-4.1}, deprecated upstream) remains a
+ * runtime fallback; every {@code webkit_*} symbol below exists in both ABIs
+ * with identical signatures for the subset we bind, so one bridge covers both.
+ * Every method here is a direct, thin binding — no allocation, no marshalling
+ * beyond what JavaCPP generates. This class is INTERNAL; glyph-web-core wraps
+ * it with state checks.
  *
  * <p><b>Linking strategy:</b> instead of {@code @Library}/{@code @Properties}
  * (which trigger the annotation processor and require a full preset pipeline),
  * we bind through plain JNI: {@link #ensureLoaded()} loads a tiny companion
  * shared object ({@code libglyphwebkit.so}, built by the {@code native-jni}
- * CMake target in CI) that {@code dlopen}s {@code libwebkit2gtk-4.1.so} lazily
- * and registers one native method per symbol below via {@code RegisterNatives}.
+ * CMake target in CI) that {@code dlopen}s the resolved WebKitGTK library
+ * (6.0 preferred, 4.1/4.0 fallback) lazily and registers one native method per
+ * symbol below via {@code RegisterNatives}.
  * This keeps startup deterministic and lets unit tests run without any native
  * artifact present ({@link #isAvailable()} simply reports {@code false}).
+ *
+ * <p><b>GTK 4 note:</b> on the 6.0 family the toolkit bootstrap uses
+ * {@code gtk_init()} (no argc/argv) and widget visibility is implicit; the
+ * bridge maps {@link #gtkInitCheck} to {@code gtk_init_check} on GTK 3 and to
+ * {@code gtk_init} + success on GTK 4, and turns {@link #gtkWidgetShow} into a
+ * no-op there. Container insertion becomes {@code gtk_widget_set_parent}.
+ * Callers must not care which ABI got loaded — see WebKitCapabilities.
  *
  * <p>Latency contract: each call maps to exactly one native jump (~20-60 ns on
  * modern x86_64). Anything that needs callbacks into Java (load-changed, title
